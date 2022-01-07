@@ -3,5 +3,5 @@ server:
 
 app:
   security:
-    publicKeyPath: "public_key"
-    privateKeyPath: "private_key"
+    secretKey: "secret_key"
+    hmacHashingAlgo: "HmacSHA256"
