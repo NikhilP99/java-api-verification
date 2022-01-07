@@ -1,15 +1,18 @@
 package me.np99.application.utils;
 
 import lombok.Getter;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -20,11 +23,13 @@ public class EncryptionUtil {
 
     private final PrivateKey privateKey;
     private final PublicKey publicKey;
+    private final Cipher cipher;
 
     public static final String privateKeyPath = "private_key";
     public static final String publicKeyPath = "public_key";
 
-    public EncryptionUtil() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+    public EncryptionUtil() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException {
+        this.cipher = Cipher.getInstance("RSA");
         this.privateKey = getPrivate();
         this.publicKey = getPublic();
     }
@@ -43,6 +48,16 @@ public class EncryptionUtil {
         KeyFactory factory = KeyFactory.getInstance("RSA");
 
         return factory.generatePublic(spec);
+    }
+
+    public String encrypt(String message) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        this.cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        return Base64.encodeBase64String(this.cipher.doFinal(message.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    public String decrypt(String message) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+        this.cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        return new String(this.cipher.doFinal(Base64.decodeBase64(message)), StandardCharsets.UTF_8);
     }
 
 }
