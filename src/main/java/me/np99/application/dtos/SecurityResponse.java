@@ -10,4 +10,6 @@ import lombok.NoArgsConstructor;
 public class SecurityResponse {
     private String hmac;
 
+    private String signature;
+
 }
