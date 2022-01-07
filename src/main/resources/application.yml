@@ -1,2 +1,7 @@
 server:
   port: 8090
+
+app:
+  security:
+    publicKeyPath: "public_key"
+    privateKeyPath: "private_key"
